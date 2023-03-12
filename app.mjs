@@ -8,14 +8,17 @@ const app = express();
 // Load the database 
 const db = new Database("C:\\Users\\daps0n!c\\Documents\\database-mongodb\\WAD\\pointsofinterest.db");
 
-// Enable the reading of JSON from the body og the POST requests
+// Enable the reading of JSON from the body of the POST requests
 app.use(express.json());
 
+
+// Load the environment variables from the .env file
 dotenv.config({path: '.env'});
 const port = process.env.PORT || 5000;
 
 app.use(express.static('public'));
 
+//Testing the routes file 
 app.get('/', (req, res) => {   
     console.log('Received  reqquest from the root');
     res.send('Hello World!');
