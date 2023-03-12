@@ -47,4 +47,5 @@ function SearchForm() {
 
 
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
+const root = document.getElementById("root");
+ReactDOM.render(<SearchForm />, root);
