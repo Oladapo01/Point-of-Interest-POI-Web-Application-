@@ -16,6 +16,23 @@ function SearchForm() {
             console.log(error);
         }
     };
+    const handleRecommend = async (poiId) => {
+        try {
+            const response = await fetch(`/poi/${poiId}/recommend`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            const data = await response.json();
+            console.log(data);
+            const regionResponse = await fetch(`/regions/${region}`);
+            const responseData = await regionResponse.json();
+            setPointOfInterest(responseData);
+        } catch (error) {
+            console.log(error);
+        }
+    }
     return(
         <div>
             <form onSubmit={handleSubmit}>
@@ -30,9 +47,10 @@ function SearchForm() {
                 {pointOfInterest.map((poi) => (
                     <li key={poi.id}>
                         <h2>{poi.name}</h2>
-                        <p>{poi.description}</p>
-                        <p>lat: {poi.lat}</p>
-                        <p>lon: {poi.lon}</p>
+                        <h4><p>Description: {poi.description}</p></h4>
+                        <p>Latitude: {poi.lat}</p>
+                        <p>Longitude: {poi.lon}</p>
+                        <button onClick={() => handleRecommend(poi.id)}>Recommend</button>
                     </li>
                 )
                 )}   
