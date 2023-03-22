@@ -39,20 +39,24 @@ app.get('/regions/:region', (req, res) => {
 
 app.post('/poi/add', (req, res) => {
     try{
-        //if(!req.body.name || !req.body.type|| !req.body.country || !req.body.region || !req.body.lon || !req.body.lat || !req.body.description || !req.body.recommendations){
-        //    res.status(400).json({error: 'Missing parameters'});
-        //    return;
-        //}else{
-            const poi = req.body;
+        if(!req.body.name ||
+            !req.body.type ||
+            !req.body.country ||
+            !req.body.region ||
+            !req.body.lon || 
+            !req.body.lat || 
+            !req.body.description || 
+            !req.body.recommendations) {
+            res.status(400).json({error: 'Missing required fields'});
+            return;
+        }else{
             const stmt = db.prepare('INSERT INTO pointsofinterest(name, type, country, region, lon, lat, description, recommendations) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-            const info = stmt.run(poi.name, poi.type, poi.country, poi.region, poi.lon, poi.lat, poi.description, poi.recommendations);
-            res.json({id: info.lastInsertRowid});
-        //}
-        
+            const info = stmt.run(req.body.name, req.body.type, req.body.country, req.body.region, req.body.lon, req.body.lat, req.body.description, req.body.recommendations);
+            res.json({id: info.lastInsertRowid}); 
+        }  
     } catch(error) {
-        res.status(500).json({error: error});
+        res.status(500).json({error: 'Database error'});
     }
-    ;
 });
 
 app.post('/poi/:id/recommend', (req, res) => {
@@ -72,5 +76,5 @@ app.post('/poi/:id/recommend', (req, res) => {
 })
 
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost/${port}`);
+    console.log(`[${new Date().toLocaleString()}]Server is running on http://localhost/${port}`);
 })

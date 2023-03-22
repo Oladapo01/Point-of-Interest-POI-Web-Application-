@@ -13,7 +13,7 @@ const POIForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const data = { name, type, country, region, lon, lat, description, recommendations, recommendations };
+            const data = { name, type, country, region, lon, lat, description, recommendations };
             const response = await fetch('/poi/add', {
                 method: 'POST',
                 headers: {
@@ -23,28 +23,34 @@ const POIForm = () => {
             });
             const result = await response.json();
             console.log(result);
+            if (response.status === 200){
+                alert('Point of Interest added successfully');
+            } else{
+                alert('Error adding Point of Interest, Please try again');
+            }
         } catch (error) {
-            console.log(error);
+            alert('Error: ' + error.message); // To display message in an alert
         }
     }
     
     return (
         <form onSubmit={handleSubmit}>
-            <label htmlfor="name">Name</label>
+            <label htmlFor="name">Name</label>
             <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} />
-            <label htmlfor="type">Type</label>
+            <label htmlFor="type">Type</label>
             <input type="text" id="type" value={type} onChange={(e) => setType(e.target.value)} />
-            <label htmlfor="country">Country</label>
+            <label htmlFor="country">Country</label>
             <input type="text" id="country" value={country} onChange={(e) => setCountry(e.target.value)} />
-            <label htmlfor="region">Region</label>
+            <label htmlFor="region">Region</label>
             <input type="text" id="region" value={region} onChange={(e) => setRegion(e.target.value)} />
-            <label htmlfor="lat">Latitude</label>
+            <label htmlFor="lat">Latitude</label>
             <input type="text" id="lat" value={lat} onChange={(e) => setLat(e.target.value)} />
-            <label htmlfor="lon">Longitude</label>
+            <label htmlFor="lon">Longitude</label>
             <input type="text" id="lon" value={lon} onChange={(e) => setLon(e.target.value)} />
-            <label htmlfor="description">Description</label>
+            <label htmlFor="description">Description</label>
             <input type="text" id="description" value={description} onChange={(e) => setDescription(e.target.value)} />
-
+            <label htmlFor="recommendations">Recommendations</label>
+            <input type="text" id="recommendations" value={recommendations} onChange={(e) => setRecommendations(e.target.value)} />
             <input type="submit" value="Add" />
             </form>
             );
