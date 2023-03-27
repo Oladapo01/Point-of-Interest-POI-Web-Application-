@@ -3,7 +3,6 @@
 function SearchForm() {
     const [region, setRegion] = React.useState("");
     const [pointOfInterest, setPointOfInterest] = React.useState([]);
-    //const [mapInitialized, setMapIntialized] = useState(false);
     const mapContainerRef = React.useRef(null);
 
     const handleRegionChange = (event) => {
@@ -42,12 +41,12 @@ function SearchForm() {
     
     React.useEffect(() => {
         let map = null;
-        if (/*!mapInitalized &&*/ mapContainerRef.current){
+        if (mapContainerRef.current){
             map = L.map(mapContainerRef.current).setView([50.908, -1.4], 14);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
-            /*setMapIntialized(true);*/
+            // Add markers to the map
             const markers = [];
             pointOfInterest.forEach((poi) => {
                 const marker = L.marker([poi.lat, poi.lon]).addTo(map);
@@ -63,7 +62,7 @@ function SearchForm() {
             };
         }
         
-    }, [pointOfInterest/*, mapInitialized*/]);
+    }, [pointOfInterest]);
 
     return(
         <div>
@@ -92,7 +91,5 @@ function SearchForm() {
         </div>
     );
 }
-/*const root = document.getElementById("root");
-ReactDOM.render(<SearchForm/>, root);*/
 const root = document.getElementById("root");
 ReactDOM.createRoot(root).render(<SearchForm/>);
