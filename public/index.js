@@ -1,39 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+
 
 function SearchForm() {
     const [region, setRegion] = React.useState("");
     const [pointOfInterest, setPointOfInterest] = React.useState([]);
-
-    React.useEffect(() => {
-        const map = L.map('map').setView([0, 0], 2);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'Map data © OpenStreetMap contributors',
-        }).addTo(map);
-
-        //Add a marker layer for the point of interest
-        const poiMarker = L.markerClusterGroup();
-        poiMarker.addTo(map);
-
-        //Add a click listener for the point of interest
-        poiMarker.on('click', (event) => {
-            const poi = event.layer.poi;
-            L.popup()
-                .setLatLng(event.latlng)
-                .setContent(`<h2>${poi.name}</h2><p>${poi.description}</p>`)
-                .openOn(map);
-        });
-
-        //Update the marker layer whenever the pointOfInterest state changes
-        poiMarker.clearLayers();
-        for (const poi of pointOfInterest) {
-            L.marker([poi.lat, poi.lon], {poi})
-                .addTo(poiMarker)
-                .bindPopup(`<h2>${poi.name}</h2><p>${poi.description}</p>`);
-            }
-        }, [pointOfInterest]);
+    //const [mapInitialized, setMapIntialized] = useState(false);
+    const mapContainerRef = React.useRef(null);
 
     const handleRegionChange = (event) => {
         setRegion(event.target.value);
@@ -49,23 +20,51 @@ function SearchForm() {
             console.log(error);
         }
     };
+
     const handleRecommend = async (poiId) => {
         try {
             const response = await fetch(`/poi/${poiId}/recommend`, {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json"
                 }
             });
             const data = await response.json();
             console.log(data);
-            const regionResponse = await fetch(`/regions/${region}`);
-            const responseData = await regionResponse.json();
-            setPointOfInterest(responseData);
+            // Reload the point of interest list
+            const response2 = await fetch(`/regions/${region}`);
+            const data2 = await response2.json();
+            setPointOfInterest(data2);
         } catch (error) {
             console.log(error);
         }
-    }
+    };
+    
+    React.useEffect(() => {
+        let map = null;
+        if (/*!mapInitalized &&*/ mapContainerRef.current){
+            map = L.map(mapContainerRef.current).setView([50.908, -1.4], 14);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            /*setMapIntialized(true);*/
+            const markers = [];
+            pointOfInterest.forEach((poi) => {
+                const marker = L.marker([poi.lat, poi.lon]).addTo(map);
+                marker.bindPopup(`<h2>${poi.name}</h2><p>${poi.description}</p>`);
+                markers.push(marker);
+            });
+            // Clean up the markes when the component unmounts
+            return () => {
+                if(map){
+                    map.remove();
+                }
+                markers.forEach((marker) => marker.remove()); 
+            };
+        }
+        
+    }, [pointOfInterest/*, mapInitialized*/]);
+
     return(
         <div>
             <form onSubmit={handleSubmit}>
@@ -75,15 +74,25 @@ function SearchForm() {
                 </label>
                 <input type="submit" value="Search" />
             </form>
-            <div id="map" style={{ height: "500px" }}></div>
+            <div ref={mapContainerRef} style={{height: "400px"}}></div>
+            {pointOfInterest.length > 0 && 
+            <ul>
+                {pointOfInterest.map((poi) => (
+                    <li key={poi.id}>
+                        <h2>{poi.name}</h2>
+                        <h4><p>{poi.description}</p></h4>
+                        <p>Latitude: {poi.lat}</p>
+                        <p>Longitude: {poi.lon}</p>
+                        <button onClick={() => handleRecommend(poi.id)}>Recommend</button>
+                    </li>
+                )
+                )}   
+            </ul>
+            }
         </div>
-        );
-
-
+    );
 }
-
-
-
-
+/*const root = document.getElementById("root");
+ReactDOM.render(<SearchForm/>, root);*/
 const root = document.getElementById("root");
-ReactDOM.render(<SearchForm />, root);
+ReactDOM.createRoot(root).render(<SearchForm/>);
