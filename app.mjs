@@ -76,5 +76,5 @@ app.post('/poi/:id/recommend', (req, res) => {
 })
 
 app.listen(port, () => {
-    console.log(`[${new Date().toLocaleString()}]Server is running on http://localhost/${port}`);
+    console.log(`[${new Date().toLocaleString()}] Server is running on http://localhost/${port}`);
 })
