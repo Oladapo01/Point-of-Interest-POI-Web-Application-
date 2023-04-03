@@ -7,6 +7,9 @@ function SearchForm() {
     const mapRef = React.useRef(null);
     const [tempMarker, setTempMarker] =React.useState(null);
     const [addPOI, setAddPOI] = React.useState(false);
+    const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+    const [loggedInUser, setLoggedInUser] = React.useState("");
+    const [showLoginForm, setShowLoginForm] = React.useState(false);
     
     const [newPOI, setNewPOI] = React.useState({
         name: "",
@@ -37,6 +40,53 @@ function SearchForm() {
         }
     };
 
+    async function login(event) {
+        event.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                }),
+            });
+            if (response.ok){
+                const data = await response.json();
+                console.log(data);
+                setIsLoggedIn(true);
+                setLoggedInUser(username);
+                setShowLoginForm(false);
+            } else {
+                alert('Invalid Username or Password')
+            }
+        } catch (error) {
+            console.log('Error: ', error);
+        }
+    }
+    async function logout() {
+        try {
+            const response = await fetch('/logout');
+            if (response.ok){
+                setIsLoggedIn(false);
+                setLoggedInUser("");
+                setShowLoginForm(false);
+            } else {
+                alert('Error logging out')
+            }
+        } catch (error) {
+            console.log('Error: ', error);
+        }
+    }
+
+    function showLoginContainerForm(){
+        setShowLoginForm(true);
+    }
+    
     const handleRecommend = async (poiId) => {
         try {
             const response = await fetch(`/poi/${poiId}/recommend`, {
@@ -91,7 +141,7 @@ function SearchForm() {
         //Debugging
         console.log("List to be sent to the database", list); 
         try {
-            const response = await fetch(`http://localhost:5000/poi/add`, {
+            const response = await fetch(`/poi/add`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -125,8 +175,9 @@ function SearchForm() {
             //Reset the temporary marker state
             setTempMarker(null)
         }
-        //mapContainerRef.current.closePopup();
     };
+
+
     const handleMapClick = (event) => {
             setAddPOI(true);
             const {lat, lng} = event.latlng;
@@ -200,6 +251,35 @@ function SearchForm() {
 
     return(
         <div>
+            <div id ="authButtonsContainer" style={{ textAlign: "center"}}>
+                {!isLoggedIn && !showLoginForm && (
+                    <button id="loginButton" onClick={showLoginContainerForm}>Login</button>
+                )}
+                {showLoginForm && (
+                    <div id="loginContainerForm">
+                        <form onSubmit={login}>
+                            <label>
+                                Username:
+                                <input type="text" name="username" id="username" placeholder="Username" />
+                            </label>
+                            <label>
+                                Password:
+                                <input type="password" name="password" id="password" placeholder="Password" />
+                            </label>
+                            <button type="submit">Login</button>
+                        </form>
+                    </div>
+                )}
+                {isLoggedIn && (
+                    <div>
+                        <button onClick={logout}>Logout</button>
+                        <div id="loginStatus">Welcome {loggedInUser}</div>
+                    </div>
+                    
+                )}
+                    
+                
+            </div>
             <form onSubmit={handleSubmit}>
                 <label>
                     Region:
