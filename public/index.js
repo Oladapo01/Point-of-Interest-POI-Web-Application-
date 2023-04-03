@@ -5,7 +5,9 @@ function SearchForm() {
     const [pointOfInterest, setPointOfInterest] = React.useState([]);
     const mapContainerRef = React.useRef(null);
     const mapRef = React.useRef(null);
+    const [tempMarker, setTempMarker] =React.useState(null);
     const [addPOI, setAddPOI] = React.useState(false);
+    
     const [newPOI, setNewPOI] = React.useState({
         name: "",
         type: "",
@@ -17,8 +19,8 @@ function SearchForm() {
         recommendations: 0
     });
     const [addPOIMessage, setAddPOIMessage] =React.useState("");
-    let lat = 0;
-    let lon = 0;
+    //let lat = 0;
+    //let lon = 0;
 
     const handleRegionChange = (event) => {
         setRegion(event.target.value);
@@ -55,7 +57,7 @@ function SearchForm() {
     };
 
     
-    const handleAddPOI = async (event) => {
+    const handleAddPOI = async (event, lat, lng) => {
         event.preventDefault();
         const form = event.target;
         const name = form.name.value;
@@ -63,22 +65,38 @@ function SearchForm() {
         const country = form.country.value;
         const region = form.region.value;
         const description = form.description.value;
+
+        // Create a new point of interest object
+        setNewPOI({
+            name: name,
+            type: type,
+            country: country,
+            region: region,
+            lon: lng,
+            lat: lat,
+            description: description,
+            recommendations: 0
+        });
+
+        const list = {
+            name: name,
+            type: type,
+            country: country,
+            region: region,
+            lon: lng,
+            lat: lat,
+            description: description,
+            recommendations: 0
+        };
+        //Debugging
+        console.log("List to be sent to the database", list); 
         try {
-            const response = await fetch(`/poi/add`, {
+            const response = await fetch(`http://localhost:5000/poi/add`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({
-                    name: name,
-                    type: type,
-                    country: country,
-                    region: region,
-                    lon: newPOI.lon,
-                    lat: newPOI.lat,
-                    description: description,
-                    recommendations: 0  
-                }),
+                body: JSON.stringify(list),
             });
             if(response.ok) { 
                 const data = await response.json();
@@ -101,7 +119,13 @@ function SearchForm() {
             console.log(error);
             setAddPOIMessage("Error adding point of interest. Please try again");  
         }
-        mapContainerRef.current.closePopup();
+        if(tempMarker){
+            // Remove the temporary marker from the map
+            mapRef.current.removeLayer(tempMarker);
+            //Reset the temporary marker state
+            setTempMarker(null)
+        }
+        //mapContainerRef.current.closePopup();
     };
     const handleMapClick = (event) => {
             setAddPOI(true);
@@ -111,7 +135,10 @@ function SearchForm() {
                 lat: lat,
                 lon: lng,
             }));
-
+            // Create a new marker and add it to the map
+            const marker = L.marker([lat, lng]).addTo(mapRef.current);
+            // Save the temporary marker to the state
+            setTempMarker(marker); 
             const domDiv = document.createElement("div");
             domDiv.innerHTML = `<form id= "form">
             <label>Name:</label>

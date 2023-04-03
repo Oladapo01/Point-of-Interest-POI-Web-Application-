@@ -37,27 +37,29 @@ app.get('/regions/:region', (req, res) => {
     }
 });
 
+
 app.post('/poi/add', (req, res) => {
-    try{
-        if(!req.body.name ||
-            !req.body.type ||
-            !req.body.country ||
-            !req.body.region ||
-            !req.body.lon || 
-            !req.body.lat || 
-            !req.body.description || 
-            !req.body.recommendations) {
-            res.status(400).json({error: 'Missing required fields'});
-            return;
-        }else{
-            const stmt = db.prepare('INSERT INTO pointsofinterest(name, type, country, region, lon, lat, description, recommendations) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-            const info = stmt.run(req.body.name, req.body.type, req.body.country, req.body.region, req.body.lon, req.body.lat, req.body.description, req.body.recommendations);
-            res.json({id: info.lastInsertRowid}); 
-        }  
-    } catch(error) {
-        res.status(500).json({error: 'Database error'});
+    console.log("Received data:", req.body);
+
+    const {name, type, country, region, lon, lat, description, recommendations} = req.body;
+
+    if (!name || !type || !country || !region || !lon || !lat || !description || typeof recommendations === 'undefined') {
+        console.log("Missing required fields");
+        res.status(400).json({ error: 'Missing required fields' });
+        return;
+    }
+
+    try {
+        const stmt = db.prepare('INSERT INTO pointsofinterest(name, type, country, region, lon, lat, description, recommendations) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+        const info = stmt.run(name, type, country, region, lon, lat, description, recommendations);
+        console.log("Data inserted, new ID:", info.lastInsertRowid);
+        res.json({ id: info.lastInsertRowid });
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({ error: 'Database error' });
     }
 });
+
 
 app.post('/poi/:id/recommend', (req, res) => {
     try {
