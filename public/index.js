@@ -148,7 +148,10 @@ function SearchForm() {
                 },
                 body: JSON.stringify(list),
             });
-            if(response.ok) { 
+            if (response.status === 401 ){
+                // Show user a message that they need to log in
+                setAddPOIMessage("You need to log in to add a point of interest");
+            } else if(response.ok) { 
                 const data = await response.json();
                 const poiId = data.id;
                 setAddPOIMessage("Point of interest added");
@@ -166,8 +169,11 @@ function SearchForm() {
                 setAddPOIMessage(data.error);
             } 
         } catch (error) {
-            console.log(error);
-            setAddPOIMessage("Error adding point of interest. Please try again");  
+            if(error.response && error.response.status !== 401) {
+                console.log(error);
+                setAddPOIMessage("Error adding point of interest. Please try again");  
+            }
+          
         }
         if(tempMarker){
             // Remove the temporary marker from the map

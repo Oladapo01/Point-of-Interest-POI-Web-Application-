@@ -128,7 +128,7 @@ app.use((req, res, next)=>{
 
 
 //Endpoint to add a new point of interest
-app.post('/poi/add', (req, res) => {
+app.post('/poi/add', isLoggedIn, (req, res) => {
     console.log("Received data:", req.body);
 
     const {name, type, country, region, lon, lat, description, recommendations} = req.body;
@@ -166,6 +166,13 @@ app.post('/poi/:id/recommend', (req, res) => {
     }
     
 })
+function isLoggedIn(req,res,next){
+    if(req.session.user){
+        next();
+    }else{
+        res.status(401).json({Error: 'Not logged in. Please log in to add a point of interest'});
+    }
+}
 
 app.listen(port, () => {
     console.log(`[${new Date().toLocaleString()}] Server is running on http://localhost/${port}`);
