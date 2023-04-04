@@ -55,7 +55,7 @@ function SearchForm() {
                     password: password
                 }),
             });
-            if (response.ok){
+            if(response.ok) {
                 const data = await response.json();
                 console.log(data);
                 setIsLoggedIn(true);
