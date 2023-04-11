@@ -191,12 +191,7 @@ app.post('/poi/:id/addReview', (req, res) => {
         // Fetch the reviews fpr the specific POI ID
         const stmt2 = db.prepare('SELECT * FROM poi_reviews WHERE poi_id=?');
         const reviews = stmt2.all(poiId);
-        /*const updatedReviews = reviews.map((review) => ({
-            user: review.user,
-            text: review.review
-
-        }))
-        updatedReviews.push({ user: req.user, text: userReview })*/
+        
         
         // Insert review into the database
         const stmt3 = db.prepare('INSERT INTO poi_reviews(poi_id, review) VALUES (?, ?)');
@@ -205,8 +200,6 @@ app.post('/poi/:id/addReview', (req, res) => {
         res.json({ message: 'Review added', reviewId: info.lastInsertRowid });
     }catch(error){
         throw(error);
-        /*console.error('Error:', error)
-        res.status(500).json({error: 'Internal server error'});*/
     }
 })
 
