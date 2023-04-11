@@ -83,6 +83,38 @@ function SearchForm() {
         }
     }
 
+    async function handleAddReview(event, poiId) {
+        event.preventDefault();
+        const reviewInput = document.getElementById(`review-${poiId}`);
+        const review = reviewInput.value.trim();
+        if(review.length === 0){
+            alert('Please enter a review.');
+            return;
+        }
+        try {
+            const response = await fetch(`/poi/${poiId}/addReview`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ review }),
+            });
+            if(response.ok) {
+                const data = await response.json();
+                alert('Review submitted successfully!');
+                reviewInput.value='';
+                console.log(data);
+                
+            } else {
+                const errorData = await response.json();
+                alert('Error adding review');
+            }
+        }catch (error) {
+            console.log('Error:', error)
+            alert('Failed to submit the review. Please try again.');
+        }
+    }
+
     function showLoginContainerForm(){
         setShowLoginForm(true);
     }
@@ -164,6 +196,7 @@ function SearchForm() {
                 // Add the new marker to the map
                 const marker = L.marker([newPOI.lat, newPOI.lon]).addTo(mapContainerRef.current);
                 marker.bindPopup(`<h2>${newPOI.name}</h2><p>${newPOI.description}</p>`).openPopup();
+
             }else {
                 const data = await response.json();
                 setAddPOIMessage(data.error);
@@ -198,6 +231,7 @@ function SearchForm() {
             setTempMarker(marker); 
             const domDiv = document.createElement("div");
             domDiv.innerHTML = `<form id= "form">
+            <h2>Add point of interest</h2>
             <label>Name:</label>
             <input type="text" placeholder="Enter name" id="name" required/><br>
             <label>Type:</label>
@@ -235,8 +269,15 @@ function SearchForm() {
             const markers = [];
             pointOfInterest.forEach((poi) => {
                 const marker = L.marker([poi.lat, poi.lon]).addTo(map);
-                marker.bindPopup(`<h2>${poi.name}</h2><p>${poi.description}</p>`);
+                marker.bindPopup(`<h2>${poi.name}</h2><p>${poi.description}</p>
+                <textarea id="review-${poi.id}" placeholder="Write your review here..."></textarea>
+                <button id= "submitReview-${poi.id}">Submit Review</button>`);
                 markers.push(marker);
+
+                // Add the event listener for the submit review button
+                marker.on("popupopen", () =>{
+                    document.getElementById(`submitReview-${poi.id}`).addEventListener('click', (event) => handleAddReview(event, poi.id));
+                }, 0);
             });
             // Add the event listener for the map click
             map.on("click", handleMapClick);
@@ -278,8 +319,8 @@ function SearchForm() {
                 )}
                 {isLoggedIn && (
                     <div>
-                        <button onClick={logout}>Logout</button>
                         <div id="loginStatus">Welcome {loggedInUser}</div>
+                        <button onClick={logout}>Logout</button>
                     </div>
                     
                 )}
@@ -296,7 +337,6 @@ function SearchForm() {
             <div ref={mapContainerRef} style={{height: "400px"}} /*onClick={handleMapClick}*/></div>
             {addPOI &&
             <div>
-                <h2>Add point of interest</h2>
                 {addPOIMessage !== "" && <p>{addPOIMessage}</p>}
             </div>
             }

@@ -89,7 +89,11 @@ app.post('/login', (req, res) => {
     const stmt = db.prepare('SELECT * FROM poi_users WHERE username=? AND password=?');
     const user = stmt.get(username, password);
     if(user){
-        req.session.user = user;
+        // Store the user in the session
+        req.session.user = {
+            id: user.id,
+            username: user.username
+        };
         res.json({message: 'Login successful'});
     }else{
         res.status(401).json({error: 'Invalid username or password'});
@@ -166,6 +170,46 @@ app.post('/poi/:id/recommend', (req, res) => {
     }
     
 })
+
+app.post('/poi/:id/addReview', (req, res) => {
+    const poiId = req.params.id;
+    const userReview = req.body.review;
+    console.log('Received review:', userReview)
+    if(!userReview){
+        res.status(400).json({error: 'Review cannot be left blank'});
+        return;
+    }
+    try{
+        // Check if the POI ID exists in the database
+        const stmt = db.prepare('SELECT * FROM pointsofinterest WHERE id=?');
+        const poi = stmt.get(poiId);
+        if(!poi){
+            res.status(404).json({error: 'Point of interest not found'});
+            return;
+        }
+
+        // Fetch the reviews fpr the specific POI ID
+        const stmt2 = db.prepare('SELECT * FROM poi_reviews WHERE poi_id=?');
+        const reviews = stmt2.all(poiId);
+        /*const updatedReviews = reviews.map((review) => ({
+            user: review.user,
+            text: review.review
+
+        }))
+        updatedReviews.push({ user: req.user, text: userReview })*/
+        
+        // Insert review into the database
+        const stmt3 = db.prepare('INSERT INTO poi_reviews(poi_id, review) VALUES (?, ?)');
+        const info = stmt3.run(poiId, userReview);
+       // poi.reviews.push({ user: req.user, text: userReview })
+        res.json({ message: 'Review added', reviewId: info.lastInsertRowid });
+    }catch(error){
+        throw(error);
+        /*console.error('Error:', error)
+        res.status(500).json({error: 'Internal server error'});*/
+    }
+})
+
 function isLoggedIn(req,res,next){
     if(req.session.user){
         next();
