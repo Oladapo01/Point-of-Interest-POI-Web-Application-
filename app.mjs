@@ -3,7 +3,10 @@ import express from 'express';
 import Database from 'better-sqlite3';
 import dotenv from 'dotenv';
 import expressSession from 'express-session';
-import betterSqlite3Session from 'express-session-better-sqlite3'
+import betterSqlite3Session from 'express-session-better-sqlite3';
+import { addPOI } from './dao/poiDao.mjs'
+import { addReview } from './dao/reviewDAO.mjs'
+import UserDAO from './dao/userDAO.mjs'
 
 // Create a new express app instance
 const app = express();
@@ -86,7 +89,18 @@ app.post('/login', (req, res) => {
         res.status(400).json({error: 'Missing username or password'});
         return;
     }
-    const stmt = db.prepare('SELECT * FROM poi_users WHERE username=? AND password=?');
+    const user = UserDAO.getUserByUsernameAndPassword(username, password);
+    if(user){
+        // Store the user in the session
+        req.session.user = {
+            id: user.id,
+            username: user.username
+        };
+        res.json({message: 'Login successful'});
+    } else {
+        res.status(401).json({error: 'Invalid username or password'});
+    }
+    /*const stmt = db.prepare('SELECT * FROM poi_users WHERE username=? AND password=?');
     const user = stmt.get(username, password);
     if(user){
         // Store the user in the session
@@ -97,7 +111,7 @@ app.post('/login', (req, res) => {
         res.json({message: 'Login successful'});
     }else{
         res.status(401).json({error: 'Invalid username or password'});
-    }
+    }*/
 });
 
 // 'GET' login route - useful for client to obtain currently logged in user
@@ -133,7 +147,13 @@ app.use((req, res, next)=>{
 
 //Endpoint to add a new point of interest
 app.post('/poi/add', isLoggedIn, (req, res) => {
-    console.log("Received data:", req.body);
+    try {
+        const id = addPOI(req.body);
+        res.json({ id });
+    } catch (error) {
+        res.status(400).json({ error: error.message})
+    }
+    /*console.log("Received data:", req.body);
 
     const {name, type, country, region, lon, lat, description, recommendations} = req.body;
 
@@ -151,11 +171,11 @@ app.post('/poi/add', isLoggedIn, (req, res) => {
     } catch (error) {
         console.error("Database error:", error);
         res.status(500).json({ error: 'Database error' });
-    }
+    }*/
 });
 
 
-app.post('/poi/:id/recommend', (req, res) => {
+app.post('/poi/:id/recommend', isLoggedIn, (req, res) => {
     try {
         const ids = req.params.id;
         const stmt = db.prepare('UPDATE pointsofinterest SET recommendations=recommendations+1 WHERE id=?');
@@ -171,15 +191,21 @@ app.post('/poi/:id/recommend', (req, res) => {
     
 })
 
-app.post('/poi/:id/addReview', (req, res) => {
+app.post('/poi/:id/addReview', isLoggedIn, (req, res) => {
     const poiId = req.params.id;
     const userReview = req.body.review;
-    console.log('Received review:', userReview)
-    if(!userReview){
-        res.status(400).json({error: 'Review cannot be left blank'});
-        return;
-    }
-    try{
+    console.log('Received review:', userReview) //Check userReview
+    console.log('Received poiId:', poiId) // Check poiId
+
+    addReview(poiId, userReview)
+        .then(reviewId => {
+            res.json({message: 'Review added ', reviewId});
+        })
+        .catch(err => {
+            res.status(500).json({ err: err.message });
+        });
+    
+    /*try{
         // Check if the POI ID exists in the database
         const stmt = db.prepare('SELECT * FROM pointsofinterest WHERE id=?');
         const poi = stmt.get(poiId);
@@ -200,7 +226,7 @@ app.post('/poi/:id/addReview', (req, res) => {
         res.json({ message: 'Review added', reviewId: info.lastInsertRowid });
     }catch(error){
         throw(error);
-    }
+    }*/
 })
 
 function isLoggedIn(req,res,next){

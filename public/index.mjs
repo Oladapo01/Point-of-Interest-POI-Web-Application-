@@ -92,7 +92,7 @@ function SearchForm() {
             return;
         }
         try {
-            const response = await fetch(`/poi/${poiId}/addReview`, {
+            const response = await fetch(`http://localhost:5000/poi/${poiId}/addReview`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
