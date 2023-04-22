@@ -92,7 +92,7 @@ function SearchForm() {
             return;
         }
         try {
-            const response = await fetch(`/poi/${poiId}/addReview`, {
+            const response = await fetch(`/api/reviews/${poiId}/addReview`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

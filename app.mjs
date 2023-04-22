@@ -8,6 +8,8 @@ import { addPOI } from './dao/poiDao.mjs'
 import { addReview } from './dao/reviewDAO.mjs'
 import UserDAO from './dao/userDAO.mjs'
 import usersController from './controller/usersController.mjs';
+import userRouter from './routes/userRouter.mjs'
+import reviewRouter from './routes/reviewRouter.mjs'
 
 // Create a new express app instance
 const app = express();
@@ -83,46 +85,9 @@ app.get('/regions/:region', (req, res) => {
     }
 });
 
-//login route
-app.post('/api/users/login', usersController.login);
-/*app.post('/login', (req, res) => {
-    const {username, password} = req.body;
-    if(!username || !password){
-        res.status(400).json({error: 'Missing username or password'});
-        return;
-    }
-    const user = UserDAO.getUserByUsernameAndPassword(username, password);
-    if(user){
-        // Store the user in the session
-        req.session.user = {
-            id: user.id,
-            username: user.username
-        };
-        res.json({message: 'Login successful'});
-    } else {
-        res.status(401).json({error: 'Invalid username or password'});
-    }
-   
-});*/
-
-// 'GET' login route - useful for client to obtain currently logged in user
-app.get('/api/users/current', usersController.getUser);
-/*app.get('/login', (req, res) => {
-    if(req.session.user){
-        res.json(req.session.user);
-    }else{
-        res.status(401).json({error: 'Not logged in'});
-    }
-});*/
+app.use('/api/users', userRouter);
 
 
-//logout route
-app.get('/api/users/logout', usersController.logout);
-/*app.get('/logout', (req, res) =>{
-    req.session.destroy(()=>{
-        res.json({message: 'Logout successful'});
-    });
-});*/
 
 // Middleware which protects any routes using POST or DELETE from access by users who are not logged in
 app.use((req, res, next)=>{
@@ -150,6 +115,9 @@ app.post('/poi/add', isLoggedIn, (req, res) => {
 });
 
 
+app.use('/api/reviews', isLoggedIn, reviewRouter);
+
+// Add a recommendation to the POI
 app.post('/poi/:id/recommend', isLoggedIn, (req, res) => {
     try {
         const ids = req.params.id;
@@ -166,7 +134,8 @@ app.post('/poi/:id/recommend', isLoggedIn, (req, res) => {
     
 })
 
-app.post('/poi/:id/addReview', isLoggedIn, (req, res) => {
+// add a review
+/*app.post('/poi/:id/addReview', isLoggedIn, (req, res) => {
     const poiId = req.params.id;
     const userReview = req.body.review;
     console.log('Received review:', userReview) //Check userReview
@@ -181,7 +150,7 @@ app.post('/poi/:id/addReview', isLoggedIn, (req, res) => {
         });
     
     
-})
+})*/
 
 function isLoggedIn(req, res, next){
     if(req.session.user){
