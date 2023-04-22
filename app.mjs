@@ -199,7 +199,7 @@ app.post('/poi/:id/addReview', isLoggedIn, (req, res) => {
 
     addReview(poiId, userReview)
         .then(reviewId => {
-            res.json({message: 'Review added ', reviewId});
+            res.json({message: 'Review added', reviewId});
         })
         .catch(err => {
             res.status(500).json({ err: err.message });
@@ -229,7 +229,7 @@ app.post('/poi/:id/addReview', isLoggedIn, (req, res) => {
     }*/
 })
 
-function isLoggedIn(req,res,next){
+function isLoggedIn(req, res, next){
     if(req.session.user){
         next();
     }else{

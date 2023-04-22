@@ -20,14 +20,16 @@ export function addReview(poiId, review){
             return;
         }
         const stmt = db.prepare('INSERT INTO poi_reviews(poi_id, review) VALUES (?, ?)');
-        stmt.run(poiId, review, function(err) {
-            if(err){
-                reject(err);
-            }else{
-                console.log(`Review added successfully for POI id ${poiId}: ${reviews}`);
-                resolve({ id: this.lastInsertRowid });
-            }
-        });
+        try{
+            const info = stmt.run(poiId, review)
+            console.log(`Review added successfully for POI id ${poiId}: ${review}`);
+            resolve({ id: info.lastInsertRowid });
+        } catch (err) {
+            console.error('Error adding review to the database', err);
+            reject(err);
+        }
+        
+
     });
 }
 
