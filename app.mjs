@@ -100,18 +100,7 @@ app.post('/login', (req, res) => {
     } else {
         res.status(401).json({error: 'Invalid username or password'});
     }
-    /*const stmt = db.prepare('SELECT * FROM poi_users WHERE username=? AND password=?');
-    const user = stmt.get(username, password);
-    if(user){
-        // Store the user in the session
-        req.session.user = {
-            id: user.id,
-            username: user.username
-        };
-        res.json({message: 'Login successful'});
-    }else{
-        res.status(401).json({error: 'Invalid username or password'});
-    }*/
+   
 });
 
 // 'GET' login route - useful for client to obtain currently logged in user
@@ -153,25 +142,7 @@ app.post('/poi/add', isLoggedIn, (req, res) => {
     } catch (error) {
         res.status(400).json({ error: error.message})
     }
-    /*console.log("Received data:", req.body);
-
-    const {name, type, country, region, lon, lat, description, recommendations} = req.body;
-
-    if (!name || !type || !country || !region || !lon || !lat || !description || typeof recommendations === 'undefined') {
-        console.log("Missing required fields");
-        res.status(400).json({ error: 'Missing required fields' });
-        return;
-    }
-
-    try {
-        const stmt = db.prepare('INSERT INTO pointsofinterest(name, type, country, region, lon, lat, description, recommendations) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-        const info = stmt.run(name, type, country, region, lon, lat, description, recommendations);
-        console.log("Data inserted, new ID:", info.lastInsertRowid);
-        res.json({ id: info.lastInsertRowid });
-    } catch (error) {
-        console.error("Database error:", error);
-        res.status(500).json({ error: 'Database error' });
-    }*/
+   
 });
 
 
@@ -205,28 +176,7 @@ app.post('/poi/:id/addReview', isLoggedIn, (req, res) => {
             res.status(500).json({ err: err.message });
         });
     
-    /*try{
-        // Check if the POI ID exists in the database
-        const stmt = db.prepare('SELECT * FROM pointsofinterest WHERE id=?');
-        const poi = stmt.get(poiId);
-        if(!poi){
-            res.status(404).json({error: 'Point of interest not found'});
-            return;
-        }
-
-        // Fetch the reviews fpr the specific POI ID
-        const stmt2 = db.prepare('SELECT * FROM poi_reviews WHERE poi_id=?');
-        const reviews = stmt2.all(poiId);
-        
-        
-        // Insert review into the database
-        const stmt3 = db.prepare('INSERT INTO poi_reviews(poi_id, review) VALUES (?, ?)');
-        const info = stmt3.run(poiId, userReview);
-       // poi.reviews.push({ user: req.user, text: userReview })
-        res.json({ message: 'Review added', reviewId: info.lastInsertRowid });
-    }catch(error){
-        throw(error);
-    }*/
+    
 })
 
 function isLoggedIn(req, res, next){
