@@ -45,7 +45,7 @@ function SearchForm() {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         try {
-            const response = await fetch('/login', {
+            const response = await fetch('/api/users/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -70,7 +70,7 @@ function SearchForm() {
     }
     async function logout() {
         try {
-            const response = await fetch('/logout');
+            const response = await fetch('/api/users/logout');
             if (response.ok){
                 setIsLoggedIn(false);
                 setLoggedInUser("");

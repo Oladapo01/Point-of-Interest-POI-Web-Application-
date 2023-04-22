@@ -7,6 +7,7 @@ import betterSqlite3Session from 'express-session-better-sqlite3';
 import { addPOI } from './dao/poiDao.mjs'
 import { addReview } from './dao/reviewDAO.mjs'
 import UserDAO from './dao/userDAO.mjs'
+import usersController from './controller/usersController.mjs';
 
 // Create a new express app instance
 const app = express();
@@ -83,7 +84,8 @@ app.get('/regions/:region', (req, res) => {
 });
 
 //login route
-app.post('/login', (req, res) => {
+app.post('/api/users/login', usersController.login);
+/*app.post('/login', (req, res) => {
     const {username, password} = req.body;
     if(!username || !password){
         res.status(400).json({error: 'Missing username or password'});
@@ -101,24 +103,26 @@ app.post('/login', (req, res) => {
         res.status(401).json({error: 'Invalid username or password'});
     }
    
-});
+});*/
 
 // 'GET' login route - useful for client to obtain currently logged in user
-app.get('/login', (req, res) => {
+app.get('/api/users/current', usersController.getUser);
+/*app.get('/login', (req, res) => {
     if(req.session.user){
         res.json(req.session.user);
     }else{
         res.status(401).json({error: 'Not logged in'});
     }
-});
+});*/
 
 
 //logout route
-app.get('/logout', (req, res) =>{
+app.get('/api/users/logout', usersController.logout);
+/*app.get('/logout', (req, res) =>{
     req.session.destroy(()=>{
         res.json({message: 'Logout successful'});
     });
-});
+});*/
 
 // Middleware which protects any routes using POST or DELETE from access by users who are not logged in
 app.use((req, res, next)=>{
