@@ -32,7 +32,7 @@ function SearchForm() {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await fetch(`/regions/${region}`);
+            const response = await fetch(`/api/poi/region/${region}`);
             const data = await response.json();
             setPointOfInterest(data);
         } catch (error) {
@@ -130,7 +130,7 @@ function SearchForm() {
             const data = await response.json();
             console.log(data);
             // Reload the point of interest list
-            const response2 = await fetch(`/regions/${region}`);
+            const response2 = await fetch(`/api/poi/regions/${region}`);
             const data2 = await response2.json();
             setPointOfInterest(data2);
         } catch (error) {
@@ -173,7 +173,7 @@ function SearchForm() {
         //Debugging
         console.log("List to be sent to the database", list); 
         try {
-            const response = await fetch(`/poi/add`, {
+            const response = await fetch(`/api/poi`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -182,15 +182,15 @@ function SearchForm() {
             });
             if (response.status === 401 ){
                 // Show user a message that they need to log in
-                setAddPOIMessage("You need to log in to add a point of interest");
+                alert("You need to log in to add a point of interest");
             } else if(response.ok) { 
                 const data = await response.json();
                 const poiId = data.id;
-                setAddPOIMessage("Point of interest added");
+                alert("Point of interest added");
                 setAddPOI(false);
 
                 // Reload the point of interest list
-                const response2 = await fetch(`/regions/${region}`);
+                const response2 = await fetch(`/api/poi/region/${region}`);
                 const data2 = await response2.json();
                 setPointOfInterest(data2);
                 // Add the new marker to the map
@@ -204,7 +204,7 @@ function SearchForm() {
         } catch (error) {
             if(error.response && error.response.status !== 401) {
                 console.log(error);
-                setAddPOIMessage("Error adding point of interest. Please try again");  
+                alert("Error adding point of interest. Please try again");  
             }
           
         }
@@ -267,7 +267,8 @@ function SearchForm() {
             }).addTo(map);
             // Add markers to the map
             const markers = [];
-            pointOfInterest.forEach((poi) => {
+            if(pointOfInterest){
+                pointOfInterest.forEach((poi) => {
                 const marker = L.marker([poi.lat, poi.lon]).addTo(map);
                 marker.bindPopup(`<h2>${poi.name}</h2><p>${poi.description}</p>
                 <textarea id="review-${poi.id}" placeholder="Write your review here..."></textarea>
@@ -275,10 +276,11 @@ function SearchForm() {
                 markers.push(marker);
 
                 // Add the event listener for the submit review button
-                marker.on("popupopen", () =>{
-                    document.getElementById(`submitReview-${poi.id}`).addEventListener('click', (event) => handleAddReview(event, poi.id));
-                }, 0);
-            });
+                    marker.on("popupopen", () =>{
+                        document.getElementById(`submitReview-${poi.id}`).addEventListener('click', (event) => handleAddReview(event, poi.id));
+                    }, 0);
+                });
+            }
             // Add the event listener for the map click
             map.on("click", handleMapClick);
 

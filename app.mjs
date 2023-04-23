@@ -4,19 +4,20 @@ import Database from 'better-sqlite3';
 import dotenv from 'dotenv';
 import expressSession from 'express-session';
 import betterSqlite3Session from 'express-session-better-sqlite3';
-import { addPOI } from './dao/poiDao.mjs'
-import { addReview } from './dao/reviewDAO.mjs'
-import UserDAO from './dao/userDAO.mjs'
-import usersController from './controller/usersController.mjs';
+//import { addPOI } from './dao/poiDao.mjs'
+//import { addReview } from './dao/reviewDAO.mjs'
+//import UserDAO from './dao/userDAO.mjs'
+//import usersController from './controller/usersController.mjs';
 import userRouter from './routes/userRouter.mjs'
 import reviewRouter from './routes/reviewRouter.mjs'
+import { poiGetRouter, poiPostRouter } from './routes/poiRouter.mjs';
 
 // Create a new express app instance
 const app = express();
 // Load the database 
 const db = new Database("C:\\Users\\daps0n!c\\Documents\\database-mongodb\\WAD\\pointsofinterest.db");
 
-// Create sqlite dtabase to store session
+// Create sqlite database to store session
 const sessDb = new Database('session.db');
 
 // Create a session store
@@ -68,12 +69,12 @@ app.use(express.static('public'));
 
 //Testing the routes file 
 app.get('/', (req, res) => {   
-    console.log('Received  reqquest from the root');
+    console.log('Received  request from the root');
     res.send('Hello World!');
 });
 
 //Endpoint to look up all point of interest and returnns the result as JSON
-app.get('/regions/:region', (req, res) => {
+/*app.get('/regions/:region', (req, res) => {
     try{
         const regionName = req.params.region;
         const stmt = db.prepare('SELECT * FROM pointsofinterest WHERE region=?');
@@ -83,8 +84,13 @@ app.get('/regions/:region', (req, res) => {
     catch(err){
         res.status(500).json({error: err.message});
     }
-});
+});*/
 
+// Mount the routers for the point of interest
+app.use('/api/poi', poiGetRouter);
+app.use('/api/poi', poiPostRouter);
+
+// For the user 
 app.use('/api/users', userRouter);
 
 
@@ -104,7 +110,7 @@ app.use((req, res, next)=>{
 
 
 //Endpoint to add a new point of interest
-app.post('/poi/add', isLoggedIn, (req, res) => {
+/*app.post('/poi/add', isLoggedIn, (req, res) => {
     try {
         const id = addPOI(req.body);
         res.json({ id });
@@ -112,9 +118,9 @@ app.post('/poi/add', isLoggedIn, (req, res) => {
         res.status(400).json({ error: error.message})
     }
    
-});
+});*/
 
-
+//Add a review to the POI
 app.use('/api/reviews', isLoggedIn, reviewRouter);
 
 // Add a recommendation to the POI
@@ -134,23 +140,6 @@ app.post('/poi/:id/recommend', isLoggedIn, (req, res) => {
     
 })
 
-// add a review
-/*app.post('/poi/:id/addReview', isLoggedIn, (req, res) => {
-    const poiId = req.params.id;
-    const userReview = req.body.review;
-    console.log('Received review:', userReview) //Check userReview
-    console.log('Received poiId:', poiId) // Check poiId
-
-    addReview(poiId, userReview)
-        .then(reviewId => {
-            res.json({message: 'Review added', reviewId});
-        })
-        .catch(err => {
-            res.status(500).json({ err: err.message });
-        });
-    
-    
-})*/
 
 function isLoggedIn(req, res, next){
     if(req.session.user){

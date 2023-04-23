@@ -15,3 +15,18 @@ export function addPOI(data) {
     console.log("Data inserted, new ID:", info.lastInsertRowid);
     return info.lastInsertRowid;
 }
+
+export function getAllPOI() {
+    const stmt = db.prepare('SELECT * FROM pointsofinterest');
+    return stmt.all();
+}
+
+export function getPOIById(id) {
+    const stmt = db.prepare('SELECT * FROM pointsofinterest WHERE id=?');
+    return stmt.get(id);
+}
+
+export function getPOIByRegion(region) {
+    const stmt = db.prepare('SELECT * FROM pointsofinterest WHERE region=?');
+    return stmt.all(region);
+}
