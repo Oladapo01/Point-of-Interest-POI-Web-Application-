@@ -1,5 +1,3 @@
-
-
 function SearchForm() {
     const [region, setRegion] = React.useState("");
     const [pointOfInterest, setPointOfInterest] = React.useState([]);
@@ -10,6 +8,7 @@ function SearchForm() {
     const [isLoggedIn, setIsLoggedIn] = React.useState(false);
     const [loggedInUser, setLoggedInUser] = React.useState("");
     const [showLoginForm, setShowLoginForm] = React.useState(false);
+    const [markers, setMarkers] = React.useState([]);
     
     const [newPOI, setNewPOI] = React.useState({
         name: "",
@@ -22,8 +21,7 @@ function SearchForm() {
         recommendations: 0
     });
     const [addPOIMessage, setAddPOIMessage] =React.useState("");
-    //let lat = 0;
-    //let lon = 0;
+    
 
     const handleRegionChange = (event) => {
         setRegion(event.target.value);
@@ -195,7 +193,7 @@ function SearchForm() {
                 setPointOfInterest(data2);
                 // Add the new marker to the map
                 const marker = L.marker([newPOI.lat, newPOI.lon]).addTo(mapContainerRef.current);
-                marker.bindPopup(`<h2>${newPOI.name}</h2><p>${newPOI.description}</p>`).openPopup();
+                marker.bindPopup(`<h3>${newPOI.name}</h3><p>${newPOI.description}</p>`).openPopup();
 
             }else {
                 const data = await response.json();
@@ -218,6 +216,7 @@ function SearchForm() {
 
 
     const handleMapClick = (event) => {
+        event.preventDefault();
             setAddPOI(true);
             const {lat, lng} = event.latlng;
             setNewPOI((prevState) => ({
@@ -252,12 +251,12 @@ function SearchForm() {
             // Add the event listener for the form submission
             form.addEventListener("submit", (event) => {
                 handleAddPOI(event, lat, lng)
-            }); 
-            
+            });    
         };
     
     React.useEffect(() => {
         let map = null;
+        let markers = []
         if (mapContainerRef.current){
             map = L.map(mapContainerRef.current).setView([50.908, -1.4], 14);
             // Set the map instance to the mapRef
@@ -266,21 +265,24 @@ function SearchForm() {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
             // Add markers to the map
-            const markers = [];
-            if(pointOfInterest){
-                pointOfInterest.forEach((poi) => {
+            const newMarkers = [];
+            
+            pointOfInterest.forEach((poi) => {
                 const marker = L.marker([poi.lat, poi.lon]).addTo(map);
-                marker.bindPopup(`<h2>${poi.name}</h2><p>${poi.description}</p>
+                marker.bindPopup(`<h3>${poi.name}</h3><p>${poi.description}</p>
                 <textarea id="review-${poi.id}" placeholder="Write your review here..."></textarea>
                 <button id= "submitReview-${poi.id}">Submit Review</button>`);
-                markers.push(marker);
+                newMarkers.push(marker);
 
                 // Add the event listener for the submit review button
-                    marker.on("popupopen", () =>{
-                        document.getElementById(`submitReview-${poi.id}`).addEventListener('click', (event) => handleAddReview(event, poi.id));
-                    }, 0);
-                });
-            }
+                marker.on("popupopen", () =>{
+                    document.getElementById(`submitReview-${poi.id}`).addEventListener('click', (event) => handleAddReview(event, poi.id));
+                }, 0);
+            });
+            //Add the new markers to the map and remove the old ones without refreshing
+            markers.forEach((marker) => marker.remove());
+            newMarkers.forEach((marker) => markers.push(marker));
+
             // Add the event listener for the map click
             map.on("click", handleMapClick);
 
@@ -330,13 +332,15 @@ function SearchForm() {
                 
             </div>
             <form onSubmit={handleSubmit}>
-                <label>
-                    Region:
-                    <input type="text" value={region} onChange={handleRegionChange} />
-                </label>
-                <input type="submit" value="Search" />
+                Region:
+                    <div class="input-group mb-3">
+                        <input type="text"  class="form-control" placeholder="Type here" aria-label="Type here" aria-describedby="basic-addon2" value={region} onChange={handleRegionChange} />
+                        <div class="input-group-append">
+                            <input class="input-group-text" id="basic-addon2" type="submit" value="Search" />
+                        </div>
+                    </div>
             </form>
-            <div ref={mapContainerRef} style={{height: "400px"}} /*onClick={handleMapClick}*/></div>
+            <div ref={mapContainerRef} style={{height: "600px"}} ></div>
             {addPOI &&
             <div>
                 {addPOIMessage !== "" && <p>{addPOIMessage}</p>}
@@ -347,7 +351,7 @@ function SearchForm() {
             <ul>
                 {pointOfInterest.map((poi) => (
                     <li key={poi.id}>
-                        <h2>{poi.name}</h2>
+                        <h3>{poi.name}</h3>
                         <h4><p>{poi.description}</p></h4>
                         <p>Latitude: {poi.lat}</p>
                         <p>Longitude: {poi.lon}</p>

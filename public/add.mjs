@@ -57,5 +57,5 @@ const POIForm = () => {
 };
 
 const root = document.getElementById("root");
-ReactDOM.render(<POIForm />, root);
+ReactDOM.createRoot(root).render(<POIForm />);
 
