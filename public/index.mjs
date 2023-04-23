@@ -8,7 +8,7 @@ function SearchForm() {
     const [isLoggedIn, setIsLoggedIn] = React.useState(false);
     const [loggedInUser, setLoggedInUser] = React.useState("");
     const [showLoginForm, setShowLoginForm] = React.useState(false);
-    const [markers, setMarkers] = React.useState([]);
+    
     
     const [newPOI, setNewPOI] = React.useState({
         name: "",
