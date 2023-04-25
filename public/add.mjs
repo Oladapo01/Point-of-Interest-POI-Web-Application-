@@ -14,7 +14,7 @@ const POIForm = () => {
         e.preventDefault();
         try {
             const data = { name, type, country, region, lon, lat, description, recommendations };
-            const response = await fetch('/poi/add', {
+            const response = await fetch('/api/poi', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

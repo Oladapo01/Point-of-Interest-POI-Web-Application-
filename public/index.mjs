@@ -333,10 +333,10 @@ function SearchForm() {
             </div>
             <form onSubmit={handleSubmit}>
                 Region:
-                    <div class="input-group mb-3">
-                        <input type="text"  class="form-control" placeholder="Type here" aria-label="Type here" aria-describedby="basic-addon2" value={region} onChange={handleRegionChange} />
-                        <div class="input-group-append">
-                            <input class="input-group-text" id="basic-addon2" type="submit" value="Search" />
+                    <div className="input-group mb-3">
+                        <input type="text"  className="form-control" placeholder="Type here" aria-label="Type here" aria-describedby="basic-addon2" value={region} onChange={handleRegionChange} />
+                        <div className="input-group-append">
+                            <input className="input-group-text" id="basic-addon2" type="submit" value="Search" />
                         </div>
                     </div>
             </form>

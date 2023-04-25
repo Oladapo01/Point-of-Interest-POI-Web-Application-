@@ -3,7 +3,6 @@ import { getAllPOIRouter, getPOIByIdRouter, getPOIByRegionRouter } from '../cont
 import { addPOIRouter } from '../controller/poiController.mjs';
 
 
-
 // Router for the GET requests
 const poiGetRouter = express.Router();
 

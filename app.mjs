@@ -4,10 +4,6 @@ import Database from 'better-sqlite3';
 import dotenv from 'dotenv';
 import expressSession from 'express-session';
 import betterSqlite3Session from 'express-session-better-sqlite3';
-//import { addPOI } from './dao/poiDao.mjs'
-//import { addReview } from './dao/reviewDAO.mjs'
-//import UserDAO from './dao/userDAO.mjs'
-//import usersController from './controller/usersController.mjs';
 import userRouter from './routes/userRouter.mjs'
 import reviewRouter from './routes/reviewRouter.mjs'
 import { poiGetRouter, poiPostRouter } from './routes/poiRouter.mjs';
@@ -57,6 +53,8 @@ app.use(expressSession({
      }
 }))
 
+app.use(express.static('views'))
+
 // Enable the reading of JSON from the body of the POST requests
 app.use(express.json());
 
@@ -69,22 +67,14 @@ app.use(express.static('public'));
 
 //Testing the routes file 
 app.get('/', (req, res) => {   
-    console.log('Received  request from the root');
-    res.send('Hello World!');
+    console.log('Received request from the root');
+    res.redirect('/search.html');
 });
 
-//Endpoint to look up all point of interest and returnns the result as JSON
-/*app.get('/regions/:region', (req, res) => {
-    try{
-        const regionName = req.params.region;
-        const stmt = db.prepare('SELECT * FROM pointsofinterest WHERE region=?');
-        const rows = stmt.all(regionName);
-        res.json(rows);
-    }
-    catch(err){
-        res.status(500).json({error: err.message});
-    }
-});*/
+app.get('add', (req, res) => {   
+    console.log('Add');
+    res.redirect('/add.html');
+});
 
 // Mount the routers for the point of interest
 app.use('/api/poi', poiGetRouter);
@@ -109,16 +99,7 @@ app.use((req, res, next)=>{
 });
 
 
-//Endpoint to add a new point of interest
-/*app.post('/poi/add', isLoggedIn, (req, res) => {
-    try {
-        const id = addPOI(req.body);
-        res.json({ id });
-    } catch (error) {
-        res.status(400).json({ error: error.message})
-    }
-   
-});*/
+
 
 //Add a review to the POI
 app.use('/api/reviews', isLoggedIn, reviewRouter);
