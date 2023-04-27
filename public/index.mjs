@@ -216,7 +216,7 @@ function SearchForm() {
 
 
     const handleMapClick = (event) => {
-        event.preventDefault();
+        
             setAddPOI(true);
             const {lat, lng} = event.latlng;
             setNewPOI((prevState) => ({
