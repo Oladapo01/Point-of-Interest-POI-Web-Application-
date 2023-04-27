@@ -10,8 +10,11 @@ import { poiGetRouter, poiPostRouter } from './routes/poiRouter.mjs';
 
 // Create a new express app instance
 const app = express();
-// Load the database 
-const db = new Database("C:\\Users\\daps0n!c\\Documents\\database-mongodb\\WAD\\pointsofinterest.db");
+// Load the environment variable from the .env file
+dotenv.config({path: '.env'});
+
+// Create a new database instance using the DB_PATH variable from the .env file
+const db = new Database(process.env.DB_PATH);
 
 // Create sqlite database to store session
 const sessDb = new Database('session.db');

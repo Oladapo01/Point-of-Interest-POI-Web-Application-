@@ -1,7 +1,11 @@
 import Database from 'better-sqlite3';
+import dotenv from 'dotenv'
 
-// Create a new database instance
-const db = new Database("C:\\Users\\daps0n!c\\Documents\\database-mongodb\\WAD\\pointsofinterest.db");
+// Load the environment variables from the .env file
+dotenv.config({path: '.env'});
+
+// Create a new database instance using the DB_PATH variable from the .env file
+const db = new Database(process.env.DB_PATH);
 
 export function addReview(poiId, review){
     return new Promise((resolve, reject) =>{
