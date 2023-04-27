@@ -71,7 +71,7 @@ app.use(express.static('public'));
 //Testing the routes file 
 app.get('/', (req, res) => {   
     console.log('Received request from the root');
-    res.redirect('/search.html');
+    res.redirect('/index.html');
 });
 
 app.get('add', (req, res) => {   
